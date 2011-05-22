@@ -26,9 +26,6 @@ import java.util.regex.*;
 import SimpleOpenNI.SimpleOpenNI;
 
 import codeanticode.glgraphics.GLConstants;
-import codeanticode.glgraphics.GLGraphicsOffScreen;
-import codeanticode.glgraphics.GLTextureWindow;
-import deadpixel.keystone.CornerPinSurface;
 import deadpixel.keystone.Keystone;
 
 public class MouseGrabbers extends PApplet {
@@ -55,34 +52,27 @@ public class MouseGrabbers extends PApplet {
 	int myColor;
 
 	Grid gridFloor;
+	Grid gridOrientationView;
 
 	Invaders invaders;
 
 	SimpleOpenNI_User3d kinect;
 
 	int radius = 100;
-	GLGraphicsOffScreen glg1;
 
-	Keystone ks;
-	CornerPinSurface surface;
+	boolean applyOrientation = false;
 
 	public void setup() {
-		size(800, 600, GLConstants.GLGRAPHICS);
-		hint(ENABLE_OPENGL_4X_SMOOTH);
-		hint(ENABLE_ACCURATE_TEXTURES);
-		hint(ENABLE_NATIVE_FONTS);
-		glg1 = new GLGraphicsOffScreen(this, width, height, true, 4);
-
-		ks = new Keystone(this);
-		surface = ks.createCornerPinSurface(width, height, 20);
-		ks.startCalibration();
-
-		// The texture of the keystoned canvas is attached to the output window.
-		// Anything is drawn on this canvas will be seen in the output window.
-
-		scene = new Scene(this, glg1);
+		size(800, 600, OPENGL);
+		// hint(ENABLE_OPENGL_4X_SMOOTH);
+		// hint(ENABLE_ACCURATE_TEXTURES);
+		// hint(ENABLE_NATIVE_FONTS);
+		scene = new Scene(this);
 		scene.setShortcut('f', Scene.KeyboardAction.DRAW_FRAME_SELECTION_HINT);
-
+		buttons[0][0] = new AddRemoveBox(this, scene, new PVector(10, 10), "+",
+				32, true);
+		buttons[0][1] = new AddRemoveBox(this, scene, new PVector(
+				10 + buttons[0][0].myWidth, 10), "-", 32, false);
 		scene.setGridIsDrawn(true);
 		// scene.setCameraType(Camera.Type.ORTHOGRAPHIC);
 		scene.setRadius(3000);
@@ -96,14 +86,20 @@ public class MouseGrabbers extends PApplet {
 		boxes = new ArrayList();
 		addBox();
 
-		gridFloor = new Grid(this, glg1, scene, 20);
+		gridFloor = new Grid(this, scene, 20);
 		gridFloor.c = color(0, 255, 0);
 
-		invaders = new Invaders(this, glg1, scene, 20);
+		gridOrientationView = new Grid(this, scene, 20);
+		gridOrientationView.c = color(255, 0, 255);
+
+		invaders = new Invaders(this, scene, 20);
 		invaders.c = color(0, 255, 0);
 
 		kinect = new SimpleOpenNI_User3d();
-		kinect.setup(this, glg1);
+		kinect.setup(this);
+
+//		ks = new Keystone(this);
+//		surface = ks.createCornerPinSurface(width, height, 20);
 	}
 
 	public void draw() {
@@ -119,9 +115,7 @@ public class MouseGrabbers extends PApplet {
 		// buttons[i][1].display();
 		// }
 		//
-		background(0);
-		glg1.beginDraw();
-		scene.beginDraw();
+
 		kinect.draw();
 
 		for (int i = 0; i < boxes.size(); i++) {
@@ -130,6 +124,7 @@ public class MouseGrabbers extends PApplet {
 		}
 
 		gridFloor.draw();
+		gridOrientationView.draw(true);
 		invaders.draw();
 
 		text(frameRate, 50, 30);
@@ -142,37 +137,35 @@ public class MouseGrabbers extends PApplet {
 			scene.camera().setPosition(vector);
 			scene.camera().lookAt(((Box) boxes.get(0)).getPosition());
 		}
-		scene.endDraw();
-		glg1.endDraw();
 
-		surface.render(glg1.getTexture());
+		if (applyOrientation) {
+			Quaternion orientation = gridOrientationView.getOrientation();
+			Quaternion clone = new Quaternion(orientation.x, orientation.y,
+					orientation.z, orientation.w);
+			scene.camera().setOrientation(orientation);
+		}
 
 	}
 
 	@Override
 	public void keyPressed() {
 		switch (key) {
+		case '?':
+			applyOrientation = !applyOrientation;
 		case 'q':
 			gridFloor.w++;
 			break;
 		case 'a':
 			gridFloor.w--;
 			break;
-		case '=':
-			// enter/leave calibration mode, where surfaces can be warped
-			// & moved
-			ks.toggleCalibration();
-			break;
-		case '¿':
+		case 'i':
 			scene.camera()
 					.frame()
 					.rotate(new Quaternion(new PVector(0, 0, 1),
 							-PApplet.QUARTER_PI / 100));
 			break;
-		case '?':
-			scene.camera().frame().rotate(new Quaternion(new PVector(0, 0, 1),
-
-			PApplet.QUARTER_PI / 100));
+		case 'k':
+			gridFloor.w--;
 			break;
 
 		case 'o':
@@ -212,7 +205,7 @@ public class MouseGrabbers extends PApplet {
 		} else {
 			// si le damos a la tecla espacio
 			if (key == '<') {
-				invaders.shoot();
+				invaders.shoot(this);
 			}
 		}
 		kinect.keyPressed();

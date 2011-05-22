@@ -2,7 +2,6 @@ package spaceinvaders;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PGraphics3D;
 import processing.core.PVector;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Quaternion;
@@ -37,15 +36,13 @@ public class Grid extends InteractiveFrameElement {
 	float sizeUnit;
 	PGraphics graphics;
 
-	public Grid(PApplet applet, PGraphics graphics, Scene scene, float sizeUnit) {
+	public Grid(PApplet applet, Scene scene, float sizeUnit) {
 		super(applet, scene);
-		this.graphics = graphics;
 		this.sizeUnit = sizeUnit;
 		setSize();
 		setColor();
 		setPosition();
 		iFrame.setGrabsMouseThreshold(25);
-
 	}
 
 	// don't draw local axis
@@ -55,37 +52,36 @@ public class Grid extends InteractiveFrameElement {
 
 	public void draw(boolean drawAxis) {
 
-		graphics.pushMatrix();
-		graphics.pushStyle();
+		applet.pushMatrix();
+		applet.pushStyle();
 		// Multiply matrix to get in the frame coordinate system.
 		// scene.parent.applyMatrix(iFrame.matrix()) is handy but inefficient
-		iFrame.applyTransformation((PGraphics3D)graphics); // optimum
-		
+		iFrame.applyTransformation(); // optimum
 		if (drawAxis)
 			scene.drawAxis(size * 1.3f);
-		// graphics.noStroke();
-		graphics.strokeWeight(1);
-		graphics.noFill();
+		// applet.noStroke();
+		applet.strokeWeight(1);
+		applet.noFill();
 		if (iFrame.grabsMouse())
-			graphics.stroke(255, 0, 0);
+			applet.stroke(255, 0, 0);
 		else
-			graphics.stroke(getColor());
+			applet.stroke(getColor());
 
 		float halfH = size * h / 2;
 		float halfW = size * w / 2;
-		graphics.pushMatrix();
-		graphics.translate(-halfH, 0, 0);
-		// graphics.translate(-size * h / 2, 0, size);
+		applet.pushMatrix();
+		applet.translate(-halfH, 0, 0);
+		// applet.translate(-size * h / 2, 0, size);
 		for (int z = 0; z < w; z++) {
 			for (int x = 0; x < h; x++) {
-				graphics.box(size, 0, size);
-				graphics.translate(size, 0, 0);
+				applet.box(size, 0, size);
+				applet.translate(size, 0, 0);
 			}
-			graphics.translate(-size * h, 0, size);
+			applet.translate(-size * h, 0, size);
 		}
-		graphics.popMatrix();
-		graphics.popStyle();
-		graphics.popMatrix();
+		applet.popMatrix();
+		applet.popStyle();
+		applet.popMatrix();
 	}
 
 	// sets size randomly
