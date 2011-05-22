@@ -1,7 +1,6 @@
 package spaceinvaders;
 
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PImage;
 
 public class Invader {
@@ -35,11 +34,9 @@ public class Invader {
 			{ 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0 },
 			{ 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1 }, };
 
-	PGraphics graphics;
+	public Invader(PApplet pApplet, int _x, int _y, int _id, float _s,
+			float _si, int _ys, int unitSize) {
 
-	public Invader(PApplet pApplet, PGraphics graphics, int _x, int _y,
-			int _id, float _s, float _si, int _ys, int unitSize) {
-		this.graphics = graphics;
 		this.pApplet = pApplet;
 		x = originX = _x;
 		y = originY = _y;
@@ -84,9 +81,9 @@ public class Invader {
 			frameOne = !frameOne;
 		}
 		if (frameOne) {
-			graphics.image(invadersFrameOne, x * sizeUnit * 4, y * sizeUnit * 4);
+			pApplet.image(invadersFrameOne, x * sizeUnit * 4, y * sizeUnit * 4);
 		} else {
-			graphics.image(invadersFrameTwo, x * sizeUnit * 4, y * sizeUnit * 4);
+			pApplet.image(invadersFrameTwo, x * sizeUnit * 4, y * sizeUnit * 4);
 		}
 	}
 
