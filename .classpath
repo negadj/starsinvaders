@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_23"/>
+	<classpathentry kind="lib" path="core.jar" sourcepath="/processing-core"/>
+	<classpathentry kind="lib" path="gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="GLGraphics.jar"/>
+	<classpathentry kind="lib" path="opengl.jar"/>
+	<classpathentry kind="lib" path="jogl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="E:/VistaSW/processing-1.2.1/libraries/opengl/library"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="hemesh.jar"/>
+	<classpathentry kind="lib" path="javolution-5.5.1.jar"/>
+	<classpathentry kind="lib" path="Toxiclibs.jar"/>
+	<classpathentry kind="lib" path="toxiclibscore.jar"/>
+	<classpathentry kind="lib" path="volumeutils.jar"/>
+	<classpathentry kind="lib" path="oscP5.jar"/>
+	<classpathentry kind="lib" path="SimpleOpenNI.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="E:/VistaSW/processing-1.2.1/libraries/SimpleOpenNI/library"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="keystone.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/proscene"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
