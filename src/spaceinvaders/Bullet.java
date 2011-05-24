@@ -1,14 +1,18 @@
 package spaceinvaders;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 
 public class Bullet {
 
 	float x, y, speed;
 	float sx, sy;
 	PApplet pApplet;
+	PGraphics graphics;
 
-	Bullet(PApplet pApplet, float x, float y, float s) {
+	Bullet(PApplet pApplet, PGraphics graphics, float x, float y, float s) {
+		
+		this.graphics = graphics;
 		this.x = x;
 		this.y = y;
 		this.sx = x;
@@ -36,12 +40,12 @@ public class Bullet {
 	}
 
 	public void drawMe() {
-		pApplet.pushStyle();
-		pApplet.stroke(255);
-		pApplet.strokeWeight(2);
-		pApplet.line(x, y - 5, 0, x, y + 5, 0);
+		graphics.pushStyle();
+		graphics.stroke(255);
+		graphics.strokeWeight(2);
+		graphics.line(x, y - 5, 0, x, y + 5, 0);
 
-		pApplet.popStyle();
+		graphics.popStyle();
 	}
 
 }

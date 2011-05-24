@@ -3,6 +3,7 @@ package spaceinvaders;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PImage;
 import remixlab.proscene.Scene;
 import spaceinvaders.com.OscFacade;
@@ -42,8 +43,9 @@ public class Invaders extends Grid {
 
 	OscFacade oscFacade;
 
-	public Invaders(PApplet applet, Scene scene, int unitSize) {
-		super(applet, scene, unitSize);
+	public Invaders(PApplet applet, PGraphics graphics, Scene scene,
+			int unitSize) {
+		super(applet, graphics, scene, unitSize);
 
 		invadersFrameOne = applet.loadImage("bitxo1.gif");
 		invadersFrameOne.resize(invadersFrameOne.width * unitSize,
@@ -56,7 +58,7 @@ public class Invaders extends Grid {
 		naveImage.resize(naveImage.width * unitSize, naveImage.height
 				* unitSize);
 
-		applet.imageMode(PApplet.CENTER);
+		graphics.imageMode(PApplet.CENTER);
 		// cargamos im\u00e1genes
 
 		spaceShipSpeed = 5;
@@ -64,7 +66,7 @@ public class Invaders extends Grid {
 		int invaderCount = 0;
 		for (int i = 50; i < 200; i += 30) {
 			for (int j = 75; j < 550; j += 50) {
-				invaders[invaderCount] = new Invader(applet, j, i,
+				invaders[invaderCount] = new Invader(applet, graphics, j, i,
 						invaderCount, invadersSpeed, invadersSpeedIncrement,
 						invadersYStep, unitSize);
 				invaders[invaderCount].invadersFrameOne = invadersFrameOne;
@@ -73,7 +75,7 @@ public class Invaders extends Grid {
 			}
 		}
 
-		nave = new SpaceShip(applet, 500, 400, spaceShipSpeed, 500);
+		nave = new SpaceShip(applet,graphics, 500, 400, spaceShipSpeed, 500);
 		nave.spaceShip = naveImage;
 
 		oscFacade = new OscFacade();
@@ -85,19 +87,19 @@ public class Invaders extends Grid {
 		if (drawGrid)
 			super.draw();
 
-		applet.pushMatrix();
-		applet.pushStyle();
+		graphics.pushMatrix();
+		graphics.pushStyle();
 		// Multiply matrix to get in the frame coordinate system.
 		// scene.parent.applyMatrix(iFrame.matrix()) is handy but inefficient
 		iFrame.applyTransformation(); // optimum
-		// applet.noStroke();
+		// graphics.noStroke();
 
-		applet.translate(-300, -350, 0);
+		graphics.translate(-300, -350, 0);
 
 		if (iFrame.grabsMouse())
-			applet.stroke(255, 0, 0);
+			graphics.stroke(255, 0, 0);
 		else
-			applet.stroke(getColor());
+			graphics.stroke(getColor());
 
 		for (int i = 0; i < numOfInvaders; i++) {
 			// invaders[i].update();
@@ -140,8 +142,8 @@ public class Invaders extends Grid {
 		nave.update();
 		nave.drawMe();
 
-		applet.popStyle();
-		applet.popMatrix();
+		graphics.popStyle();
+		graphics.popMatrix();
 
 	}
 
@@ -154,7 +156,7 @@ public class Invaders extends Grid {
 		oscFacade.sendMessageYourFire((int) bullet.sx, (int) bullet.sy);
 	}
 
-	public void shoot(PApplet pApplet) {
+	public void shoot() {
 		Bullet bullet = nave.shoot();
 
 		if (bullet != null) {

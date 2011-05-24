@@ -26,6 +26,9 @@ import java.util.regex.*;
 import SimpleOpenNI.SimpleOpenNI;
 
 import codeanticode.glgraphics.GLConstants;
+import codeanticode.glgraphics.GLGraphicsOffScreen;
+import codeanticode.glgraphics.GLTextureWindow;
+import deadpixel.keystone.CornerPinSurface;
 import deadpixel.keystone.Keystone;
 
 public class MouseGrabbers extends PApplet {
@@ -52,54 +55,63 @@ public class MouseGrabbers extends PApplet {
 	int myColor;
 
 	Grid gridFloor;
-	Grid gridOrientationView;
 
 	Invaders invaders;
 
 	SimpleOpenNI_User3d kinect;
 
 	int radius = 100;
+	GLGraphicsOffScreen glg1;
 
-	boolean applyOrientation = false;
+	Keystone ks;
+	CornerPinSurface surface;
+	int userCalibrated = 0;
+	boolean tracking = false;
 
 	public void setup() {
-		size(800, 600, OPENGL);
-		// hint(ENABLE_OPENGL_4X_SMOOTH);
-		// hint(ENABLE_ACCURATE_TEXTURES);
-		// hint(ENABLE_NATIVE_FONTS);
-		scene = new Scene(this);
+		size(1024, 768, GLConstants.GLGRAPHICS);
+		hint(ENABLE_OPENGL_4X_SMOOTH);
+		hint(ENABLE_ACCURATE_TEXTURES);
+		hint(ENABLE_NATIVE_FONTS);
+
+		glg1 = new GLGraphicsOffScreen(this, width, height, true, 4);
+
+		ks = new Keystone(this);
+		surface = ks.createCornerPinSurface(width, height, 20);
+
+		// The texture of the keystoned canvas is attached to the output window.
+		// Anything is drawn on this canvas will be seen in the output window.
+
+		scene = new Scene(this, glg1);
+
+		DesktopEvents desktopEvents = new DesktopEvents(scene);
+		registerMouseEvent(desktopEvents);
+
+		scene.setMouseTracking(true);
 		scene.setShortcut('f', Scene.KeyboardAction.DRAW_FRAME_SELECTION_HINT);
-		buttons[0][0] = new AddRemoveBox(this, scene, new PVector(10, 10), "+",
-				32, true);
-		buttons[0][1] = new AddRemoveBox(this, scene, new PVector(
-				10 + buttons[0][0].myWidth, 10), "-", 32, false);
+
 		scene.setGridIsDrawn(true);
 		// scene.setCameraType(Camera.Type.ORTHOGRAPHIC);
-		scene.setRadius(3000);
+		scene.setRadius(4000);
 		scene.showAll();
+		scene.enableMouseHandling();
 		scene.camera().setPosition(new PVector(0, 0, -1500));
 		scene.camera().lookAt(new PVector(0, 0, 3000));
-		scene.showAll();
+
 		scene.camera().orientation().rotate(new PVector(0, 0, 1));
 
 		myColor = 125;
 		boxes = new ArrayList();
 		addBox();
 
-		gridFloor = new Grid(this, scene, 20);
+		gridFloor = new Grid(this, glg1, scene, 20);
 		gridFloor.c = color(0, 255, 0);
 
-		gridOrientationView = new Grid(this, scene, 20);
-		gridOrientationView.c = color(255, 0, 255);
-
-		invaders = new Invaders(this, scene, 20);
+		invaders = new Invaders(this, glg1, scene, 20);
 		invaders.c = color(0, 255, 0);
 
 		kinect = new SimpleOpenNI_User3d();
-		kinect.setup(this);
-
-//		ks = new Keystone(this);
-//		surface = ks.createCornerPinSurface(width, height, 20);
+		kinect.setup(this, glg1);
 	}
 
 	public void draw() {
@@ -115,7 +127,9 @@ public class MouseGrabbers extends PApplet {
 		// buttons[i][1].display();
 		// }
 		//
-
+		background(0);
+		glg1.beginDraw();
+		scene.beginDraw();
 		kinect.draw();
 
 		for (int i = 0; i < boxes.size(); i++) {
@@ -124,48 +138,61 @@ public class MouseGrabbers extends PApplet {
 		}
 
 		gridFloor.draw();
-		gridOrientationView.draw(true);
 		invaders.draw();
 
 		text(frameRate, 50, 30);
 
-		if (kinect.context.isTrackingSkeleton(1)) {
+		checkUserAndApplyHeadTrackingCamera();
+		scene.endDraw();
+		glg1.endDraw();
+
+		surface.render(glg1.getTexture());
+
+		text(frameRate, 10, 10);
+		text("userCalibrated:" + userCalibrated + " tracking:" + tracking, 10,
+				20);
+
+	}
+
+	private void checkUserAndApplyHeadTrackingCamera() {
+
+		tracking = false;
+
+		if (kinect.context.isTrackingSkeleton(userCalibrated)) {
 			// SimpleOpenNI.SKEL_HEAD
 			PVector vector = new PVector();
-			kinect.context.getJointPositionSkeleton(1, SimpleOpenNI.SKEL_HEAD,
+			kinect.context.getJointPositionSkeleton(userCalibrated, SimpleOpenNI.SKEL_HEAD,
 					vector);
 			scene.camera().setPosition(vector);
 			scene.camera().lookAt(((Box) boxes.get(0)).getPosition());
+			tracking = true;
 		}
-
-		if (applyOrientation) {
-			Quaternion orientation = gridOrientationView.getOrientation();
-			Quaternion clone = new Quaternion(orientation.x, orientation.y,
-					orientation.z, orientation.w);
-			scene.camera().setOrientation(orientation);
-		}
-
 	}
 
 	@Override
 	public void keyPressed() {
 		switch (key) {
-		case '?':
-			applyOrientation = !applyOrientation;
 		case 'q':
 			gridFloor.w++;
 			break;
 		case 'a':
 			gridFloor.w--;
 			break;
-		case 'i':
+		case '=':
+			// enter/leave calibration mode, where surfaces can be warped
+			// & moved
+			ks.toggleCalibration();
+			break;
+		case '¿':
 			scene.camera()
 					.frame()
 					.rotate(new Quaternion(new PVector(0, 0, 1),
 							-PApplet.QUARTER_PI / 100));
 			break;
-		case 'k':
-			gridFloor.w--;
+		case '?':
+			scene.camera().frame().rotate(new Quaternion(new PVector(0, 0, 1),
+
+			PApplet.QUARTER_PI / 100));
 			break;
 
 		case 'o':
@@ -205,7 +232,7 @@ public class MouseGrabbers extends PApplet {
 		} else {
 			// si le damos a la tecla espacio
 			if (key == '<') {
-				invaders.shoot(this);
+				invaders.shoot();
 			}
 		}
 		kinect.keyPressed();
@@ -213,8 +240,8 @@ public class MouseGrabbers extends PApplet {
 	}
 
 	public void addBox() {
-		Box box = new Box(this, scene);
-		box.setSize(20, 20, 20);
+		Box box = new Box(this, glg1, scene);
+		box.setSize(200, 200, 200);
 		box.setColor(color(0, 0, 255));
 		boxes.add(box);
 	}
@@ -227,6 +254,27 @@ public class MouseGrabbers extends PApplet {
 		}
 	}
 
+	@Override
+	public void mouseMoved() {
+		super.mouseMoved();
+		PVector mouse = surface.getTransformedMouse();
+		gridFloor.iFrame.checkIfGrabsMouse((int) mouse.x, (int) mouse.y,
+				scene.camera());
+		if (gridFloor.iFrame.grabsMouse()) {
+			println("grabbsss!!!");
+		}
+	}
+
+	public void mouseDragged() {
+		super.mouseDragged();
+		PVector mouse = surface.getTransformedMouse();
+		gridFloor.iFrame.checkIfGrabsMouse((int) mouse.x, (int) mouse.y,
+				scene.camera());
+		if (gridFloor.iFrame.grabsMouse()) {
+			println("grabbsss!!!");
+		}
+	}
+
 	public void onNewUser(int userId) {
 		println("onNewUser - userId: " + userId);
 		println("  start pose detection");
@@ -236,6 +284,7 @@ public class MouseGrabbers extends PApplet {
 
 	public void onLostUser(int userId) {
 		println("onLostUser - userId: " + userId);
+		userCalibrated = 0;
 	}
 
 	public void onStartCalibration(int userId) {
@@ -248,11 +297,13 @@ public class MouseGrabbers extends PApplet {
 
 		if (successfull) {
 			println("  User calibrated !!!");
+			userCalibrated = userId;
 			kinect.context.startTrackingSkeleton(userId);
 		} else {
 			println("  Failed to calibrate user !!!");
 			println("  Start pose detection");
 			kinect.context.startPoseDetection("Psi", userId);
+			userCalibrated = 0;
 		}
 	}
 
