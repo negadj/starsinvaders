@@ -1,5 +1,7 @@
 package spaceinvaders;
+
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Quaternion;
@@ -31,9 +33,11 @@ import remixlab.proscene.Scene;
 public class Box extends InteractiveFrameElement {
 	float w, h, d;
 	int c;
+	PGraphics graphics;
 
-	public Box(PApplet applet, Scene scene) {
+	public Box(PApplet applet, PGraphics graphics, Scene scene) {
 		super(applet, scene);
+		this.graphics = graphics;
 		setSize();
 		setColor();
 		setPosition();
@@ -45,22 +49,22 @@ public class Box extends InteractiveFrameElement {
 	}
 
 	public void draw(boolean drawAxis) {
-		applet.pushMatrix();
-		applet.pushStyle();
+		graphics.pushMatrix();
+		graphics.pushStyle();
 		// Multiply matrix to get in the frame coordinate system.
 		// scene.parent.applyMatrix(iFrame.matrix()) is handy but inefficient
 		iFrame.applyTransformation(); // optimum
 		if (drawAxis)
-			scene.drawAxis(PApplet.max(w, h, d) * 1.3f);
-		applet.noStroke();
+			scene.drawAxis(applet.max(w, h, d) * 1.3f);
+		graphics.noStroke();
 		if (iFrame.grabsMouse())
-			applet.fill(255, 0, 0);
+			graphics.fill(255, 0, 0);
 		else
-			applet.fill(getColor());
+			graphics.fill(getColor());
 		// Draw a box
-		applet.box(w, h, d);
-		applet.popStyle();
-		applet.popMatrix();
+		graphics.box(w, h, d);
+		graphics.popStyle();
+		graphics.popMatrix();
 	}
 
 	// sets size randomly

@@ -42,8 +42,10 @@ public class SimpleOpenNI_User3d {
 	PApplet applet;
 
 	boolean drawPoints = true;
+	PGraphics graphics;
 
-	public void setup(PApplet applet) {
+	public void setup(PApplet applet, PGraphics graphics) {
+		this.graphics = graphics;
 		// size(1024,768,P3D); // strange, get drawing error in the
 		// cameraFrustum if i use P3D, in opengl there is no problem
 		this.applet = applet;
@@ -58,8 +60,8 @@ public class SimpleOpenNI_User3d {
 		// enable skeleton generation for all joints
 		context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
 
-		applet.stroke(255, 255, 255);
-		applet.smooth();
+		graphics.stroke(255, 255, 255);
+		graphics.smooth();
 	}
 
 	public void draw() {
@@ -71,7 +73,7 @@ public class SimpleOpenNI_User3d {
 		int index;
 		PVector realWorldPoint;
 
-		applet.stroke(100);
+		graphics.stroke(100);
 		if (drawPoints)
 			for (int y = 0; y < context.depthHeight(); y += steps) {
 				for (int x = 0; x < context.depthWidth(); x += steps) {
@@ -79,23 +81,23 @@ public class SimpleOpenNI_User3d {
 					if (depthMap[index] > 0) {
 						// draw the projected point
 						realWorldPoint = context.depthMapRealWorld()[index];
-						applet.point(realWorldPoint.x, realWorldPoint.y,
+						graphics.point(realWorldPoint.x, realWorldPoint.y,
 								realWorldPoint.z);
 					}
 				}
 			}
 
 		// draw the skeleton if it's available
-		if (context.isTrackingSkeleton(1))
-			drawSkeleton(1);
+//		if (context.isTrackingSkeleton(1))
+//			drawSkeleton(1);
 
 		// draw the kinect cam
-		context.drawCamFrustum();
+		//context.drawCamFrustum();
 	}
 
 	// draw the skeleton with the selected joints
 	public void drawSkeleton(int userId) {
-		applet.strokeWeight(3);
+		graphics.strokeWeight(3);
 
 		// to get the 3d joint data
 		drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
@@ -131,7 +133,7 @@ public class SimpleOpenNI_User3d {
 		drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE,
 				SimpleOpenNI.SKEL_RIGHT_FOOT);
 
-		applet.strokeWeight(1);
+		graphics.strokeWeight(1);
 
 	}
 
@@ -146,8 +148,8 @@ public class SimpleOpenNI_User3d {
 		confidence = context.getJointPositionSkeleton(userId, jointType2,
 				jointPos2);
 
-		applet.stroke(255, 0, 0, confidence * 200 + 55);
-		applet.line(jointPos1.x, jointPos1.y, jointPos1.z, jointPos2.x,
+		graphics.stroke(255, 0, 0, confidence * 200 + 55);
+		graphics.line(jointPos1.x, jointPos1.y, jointPos1.z, jointPos2.x,
 				jointPos2.y, jointPos2.z);
 
 		drawJointOrientation(userId, jointType1, jointPos1, 50);
@@ -163,29 +165,27 @@ public class SimpleOpenNI_User3d {
 			// nothing to draw, orientation data is useless
 			return;
 
-		applet.pushMatrix();
-		applet.translate(pos.x, pos.y, pos.z);
+		graphics.pushMatrix();
+		graphics.translate(pos.x, pos.y, pos.z);
 
 		// set the local coordsys
-		applet.applyMatrix(orientation);
+		graphics.applyMatrix(orientation);
 
 		// coordsys lines are 100mm long
 		// x - r
-		applet.stroke(255, 0, 0, confidence * 200 + 55);
-		applet.line(0, 0, 0, length, 0, 0);
+		graphics.stroke(255, 0, 0, confidence * 200 + 55);
+		graphics.line(0, 0, 0, length, 0, 0);
 		// y - g
-		applet.stroke(0, 255, 0, confidence * 200 + 55);
-		applet.line(0, 0, 0, 0, length, 0);
+		graphics.stroke(0, 255, 0, confidence * 200 + 55);
+		graphics.line(0, 0, 0, 0, length, 0);
 		// z - b
-		applet.stroke(0, 0, 255, confidence * 200 + 55);
-		applet.line(0, 0, 0, 0, 0, length);
-		applet.popMatrix();
+		graphics.stroke(0, 0, 255, confidence * 200 + 55);
+		graphics.line(0, 0, 0, 0, 0, length);
+		graphics.popMatrix();
 	}
 
 	// -----------------------------------------------------------------
 	// SimpleOpenNI user events
-
-	
 
 	// -----------------------------------------------------------------
 	// Keyboard events

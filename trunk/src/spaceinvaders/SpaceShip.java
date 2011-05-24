@@ -3,6 +3,7 @@ package spaceinvaders;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PImage;
 
 class SpaceShip {
@@ -11,12 +12,15 @@ class SpaceShip {
 	int lastBulletTime = -10000;
 	PImage spaceShip;
 	PApplet pApplet;
+	PGraphics graphics;
 	// Tiempo (en milisegundos) que ha de pasar desde que se dispar\u00f3 una
 	// bala
 	// hasta que se puede disparar otra
 	private float bulletSpeed = 5;
 
-	public SpaceShip(PApplet pApplet, int _x, int _y, int _s, int _d) {
+	public SpaceShip(PApplet pApplet, PGraphics graphics, int _x, int _y,
+			int _s, int _d) {
+		this.graphics = graphics;
 		x = _x;
 		y = _y;
 		xStep = _s;
@@ -31,7 +35,7 @@ class SpaceShip {
 
 	public void drawMe() {
 		// println("_____________"+x+"oo"+y);
-		pApplet.image(spaceShip, x, y);
+		graphics.image(spaceShip, x, y);
 	}
 
 	public void incrementX() {
@@ -49,12 +53,12 @@ class SpaceShip {
 	public Bullet shoot() {
 		Bullet bullet = null;
 		if (pApplet.millis() - lastBulletTime > delayBetweenBullets) {
-			bullet = new Bullet(pApplet, x, y, bulletSpeed);
+			bullet = new Bullet(pApplet, graphics, x, y, bulletSpeed);
 			lastBulletTime = pApplet.millis();
 		}
 		return bullet;
 	}
-	
+
 	public boolean checkCollision(float xx, float yy) {
 		// teniendo en cuenta que los invaders son im\u00e1genes de
 		// 24x16
