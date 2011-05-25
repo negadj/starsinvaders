@@ -2,6 +2,11 @@ package spaceinvaders;
 
 import java.util.ArrayList;
 
+import javax.media.opengl.GL;
+
+import codeanticode.glgraphics.GLGraphics;
+import codeanticode.glgraphics.GLGraphicsOffScreen;
+
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -13,8 +18,9 @@ public class Invaders extends Grid {
 	public boolean drawGrid = true;
 	public PImage invadersFrameOne, invadersFrameTwo, naveImage;
 
-	int numOfInvaders = 50;
-	Invader[] invaders = new Invader[numOfInvaders];
+	int numOfInvadersX = 5;
+	int numOfInvadersY = 5;
+	Invader[] invaders = new Invader[numOfInvadersX * numOfInvadersY];
 
 	// ------INVASORES------------:
 	//
@@ -64,18 +70,14 @@ public class Invaders extends Grid {
 		spaceShipSpeed = 5;
 		// INICIALIZACION (esto funciona para 50 invasores a 10x5)
 		int invaderCount = 0;
-		for (int i = 50; i < 200; i += 30) {
-			for (int j = 75; j < 550; j += 50) {
-				invaders[invaderCount] = new Invader(applet, graphics, j, i,
-						invaderCount, invadersSpeed, invadersSpeedIncrement,
-						invadersYStep, unitSize);
-				invaders[invaderCount].invadersFrameOne = invadersFrameOne;
-				invaders[invaderCount].invadersFrameTwo = invadersFrameTwo;
-				invaderCount++;
-			}
+		for (int i = 0; i < invaders.length; i += 1) {
+			invaders[invaderCount] = new Invader(applet, graphics, 0, 0,
+					invaderCount, invadersSpeed, invadersSpeedIncrement,
+					invadersYStep, unitSize);
+			invaderCount++;
 		}
 
-		nave = new SpaceShip(applet,graphics, 500, 400, spaceShipSpeed, 500);
+		nave = new SpaceShip(applet, graphics, 500, 400, spaceShipSpeed, 500);
 		nave.spaceShip = naveImage;
 
 		oscFacade = new OscFacade();
@@ -84,6 +86,7 @@ public class Invaders extends Grid {
 
 	@Override
 	public void draw() {
+
 		if (drawGrid)
 			super.draw();
 
@@ -101,10 +104,33 @@ public class Invaders extends Grid {
 		else
 			graphics.stroke(getColor());
 
-		for (int i = 0; i < numOfInvaders; i++) {
-			// invaders[i].update();
-			invaders[i].draw();
+		GLGraphicsOffScreen renderer = (GLGraphicsOffScreen) graphics;
+		renderer.beginGL();
+
+		// We get the gl object contained in the GLGraphics renderer.
+		GL gl = renderer.gl;
+
+		// Now we can do direct calls to OpenGL:
+		gl.glEnable(GL.GL_BLEND);
+		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
+
+		// Disabling depth masking to properly render a semitransparent
+		// object without using depth sorting.
+		gl.glDepthMask(false);
+
+		for (int i = 0; i < numOfInvadersX; i++) {
+			for (int j = 0; j < numOfInvadersY; j++) {
+				// invaders[i].update();
+				renderer.pushMatrix();
+				renderer.translate(12 * 35 * i, 12 * 20 * j,-i*25);
+				renderer.rotateY(applet.radians(70));
+				renderer.model(invaders[0].xcubes);
+				renderer.popMatrix();
+			}
 		}
+		gl.glDepthMask(true);
+
+		renderer.endGL();
 
 		// DISPAROS DE LOS INVASORES
 		if (applet.frameCount % 50 == 0) {
