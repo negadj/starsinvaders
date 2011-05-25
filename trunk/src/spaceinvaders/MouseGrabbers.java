@@ -107,11 +107,13 @@ public class MouseGrabbers extends PApplet {
 		gridFloor = new Grid(this, glg1, scene, 20);
 		gridFloor.c = color(0, 255, 0);
 
-		invaders = new Invaders(this, glg1, scene, 20);
+		invaders = new Invaders(this, glg1, scene, 10);
 		invaders.c = color(0, 255, 0);
 
 		kinect = new SimpleOpenNI_User3d();
 		kinect.setup(this, glg1);
+
+		println(kinect.context.isInit());
 	}
 
 	public void draw() {
@@ -161,8 +163,8 @@ public class MouseGrabbers extends PApplet {
 		if (kinect.context.isTrackingSkeleton(userCalibrated)) {
 			// SimpleOpenNI.SKEL_HEAD
 			PVector vector = new PVector();
-			kinect.context.getJointPositionSkeleton(userCalibrated, SimpleOpenNI.SKEL_HEAD,
-					vector);
+			kinect.context.getJointPositionSkeleton(userCalibrated,
+					SimpleOpenNI.SKEL_HEAD, vector);
 			scene.camera().setPosition(vector);
 			scene.camera().lookAt(((Box) boxes.get(0)).getPosition());
 			tracking = true;
