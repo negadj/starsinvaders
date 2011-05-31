@@ -11,7 +11,7 @@ public class Bullet {
 	PGraphics graphics;
 
 	Bullet(PApplet pApplet, PGraphics graphics, float x, float y, float s) {
-		
+
 		this.graphics = graphics;
 		this.x = x;
 		this.y = y;
@@ -26,7 +26,7 @@ public class Bullet {
 	}
 
 	public void move() {
-		y -= speed;
+		y += speed;
 	}
 
 	public void checkCollision(Invader[] invaders) {
@@ -43,7 +43,7 @@ public class Bullet {
 		graphics.pushStyle();
 		graphics.stroke(255);
 		graphics.strokeWeight(2);
-		graphics.line(x, y - 5, 0, x, y + 5, 0);
+		graphics.line(x, 0, y - 5, x, 0, y + 5);
 
 		graphics.popStyle();
 	}

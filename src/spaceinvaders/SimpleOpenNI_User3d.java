@@ -88,11 +88,50 @@ public class SimpleOpenNI_User3d {
 			}
 
 		// draw the skeleton if it's available
-//		if (context.isTrackingSkeleton(1))
-//			drawSkeleton(1);
+		// if (context.isTrackingSkeleton(1))
+		// drawSkeleton(1);
 
 		// draw the kinect cam
-		//context.drawCamFrustum();
+		// context.drawCamFrustum();
+	}
+
+	public boolean checkShootPosition(int userId) {
+
+		PVector head = new PVector();
+		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, head);
+		PVector hip = new PVector();
+		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HIP,
+				hip);
+
+		float distTorso = PVector.dist(head, hip);
+
+		PVector handLeft = new PVector();
+		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND,
+				handLeft);
+
+		float distHandHip = PVector.dist(handLeft, hip);
+
+		boolean ret = false;
+
+		if (distHandHip > distTorso * 1.33) {
+
+			// PVector handRight = new PVector();
+			// context.getJointPositionSkeleton(userId,
+			// SimpleOpenNI.SKEL_RIGHT_HAND, handRight);
+			//
+			// float distHands = PVector.dist(handLeft, handRight);
+			//
+			// if (distHands < distTorso / 5) {
+			applet.stroke(0, 255, 0);
+			System.out.println("disparando.......................");
+			// }
+			ret = true;
+		} else {
+			applet.stroke(255, 0, 0);
+		}
+
+		return ret;
+
 	}
 
 	// draw the skeleton with the selected joints

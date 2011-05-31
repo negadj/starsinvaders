@@ -114,6 +114,8 @@ public class MouseGrabbers extends PApplet {
 		kinect.setup(this, glg1);
 
 		println(kinect.context.isInit());
+
+		frameRate(60);
 	}
 
 	public void draw() {
@@ -168,6 +170,17 @@ public class MouseGrabbers extends PApplet {
 			scene.camera().setPosition(vector);
 			scene.camera().lookAt(((Box) boxes.get(0)).getPosition());
 			tracking = true;
+			invaders.setPositionFire(vector);
+			doShoot(userCalibrated);
+		} else {
+			invaders.startShoot = 0;
+		}
+	}
+
+	private void doShoot(int userId) {
+
+		if (kinect.checkShootPosition(userId)) {
+			invaders.shooting();
 		}
 	}
 

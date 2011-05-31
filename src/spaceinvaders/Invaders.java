@@ -10,6 +10,7 @@ import codeanticode.glgraphics.GLGraphicsOffScreen;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.core.PVector;
 import remixlab.proscene.Scene;
 import spaceinvaders.com.OscFacade;
 
@@ -122,15 +123,14 @@ public class Invaders extends Grid {
 			for (int j = 0; j < numOfInvadersY; j++) {
 				// invaders[i].update();
 				renderer.pushMatrix();
-				renderer.translate(12 * 35 * i, 12 * 20 * j,-i*25);
-				renderer.rotateY(applet.radians(70));
+				renderer.translate(12 * 35 * i, j * 50, 12 * 30 * j);
+				renderer.rotateZ(applet.radians(90));
+				renderer.rotateY(applet.radians(150));
 				renderer.model(invaders[0].xcubes);
 				renderer.popMatrix();
 			}
 		}
-		gl.glDepthMask(true);
-
-		renderer.endGL();
+		
 
 		// DISPAROS DE LOS INVASORES
 		if (applet.frameCount % 50 == 0) {
@@ -168,8 +168,44 @@ public class Invaders extends Grid {
 		nave.update();
 		nave.drawMe();
 
+		if (startShoot > 0) {
+			applet.pushStyle();
+			applet.strokeWeight(startShoot);
+			applet.line(nave.x, 0, 0, nave.x, 1000, 1000);
+			applet.popStyle();
+		}
+		
+		gl.glDepthMask(true);
+
+		renderer.endGL();
+		
 		graphics.popStyle();
 		graphics.popMatrix();
+	}
+
+	public long startShoot = 0;
+	public long timeToShoot = 30;
+
+	public void shooting() {
+		startShoot++;
+
+		if (startShoot > 0) {
+			if (startShoot > timeToShoot) {
+				shoot();
+				startShoot = 0;
+				System.out.println("LA NAVE DISPAROOOOOO++++++++++++");
+			}
+		} else {
+			startShoot = 0;
+		}
+	}
+
+	public void setPositionFire(PVector pVector) {
+
+		PVector positionForFire = iFrame.coordinatesOf(pVector);
+		nave.z = 0;
+		nave.y = 0;
+		nave.x = (int) positionForFire.x;
 
 	}
 
