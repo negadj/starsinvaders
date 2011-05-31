@@ -7,7 +7,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 class SpaceShip {
-	int x, y;
+	int x, y, z;
 	int xStep, delayBetweenBullets;
 	int lastBulletTime = -10000;
 	PImage spaceShip;
