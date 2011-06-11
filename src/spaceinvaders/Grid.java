@@ -7,6 +7,8 @@ import processing.core.PVector;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Quaternion;
 import remixlab.proscene.Scene;
+import spaceinvaders.opengl.FastVolumetric;
+import spaceinvaders.opengl.Line;
 
 /**
  * Box. by Jean Pierre Charalambos.
@@ -36,6 +38,10 @@ public class Grid extends InteractiveFrameElement {
 	public int c;
 	float sizeUnit;
 	PGraphics graphics;
+	Line[] linesW;
+	Line[] linesH;
+	boolean delegateRender = false;
+	FastVolumetric fastVolumetric;
 
 	public Grid(PApplet applet, PGraphics graphics, Scene scene, float sizeUnit) {
 		super(applet, scene);
@@ -45,12 +51,31 @@ public class Grid extends InteractiveFrameElement {
 		setColor();
 		setPosition();
 		iFrame.setGrabsMouseThreshold(25);
+	}
 
+	public void createOpenGlRenderization(FastVolumetric fastVolumetric) {
+		this.fastVolumetric = fastVolumetric;
+
+		linesW = new Line[(int) w + 1];
+		for (int x = 0; x <= w; x++) {
+			float[] color = {0,1,0};
+			linesW[x] = new Line(new PVector(x * size, 0, 0), new PVector(x
+					* size, 0, h * size), color);
+		}
+
+		linesH = new Line[(int) h + 1];
+		for (int x = 0; x <= h; x++) {
+			float[] color = {0,1,0};
+			linesH[x] = new Line(new PVector(0, 0, x * size), new PVector(w
+					* size, 0, x * size), color);
+		}
+
+		delegateRender = true;
 	}
 
 	// don't draw local axis
 	public void draw() {
-		draw(false);
+		draw(true);
 	}
 
 	public void draw(boolean drawAxis) {
@@ -59,8 +84,8 @@ public class Grid extends InteractiveFrameElement {
 		graphics.pushStyle();
 		// Multiply matrix to get in the frame coordinate system.
 		// scene.parent.applyMatrix(iFrame.matrix()) is handy but inefficient
-		iFrame.applyTransformation((PGraphics3D)graphics); // optimum
-		
+		iFrame.applyTransformation((PGraphics3D) graphics); // optimum
+		scene.drawAxis(10);
 		if (drawAxis)
 			scene.drawAxis(size * 1.3f);
 		// graphics.noStroke();
@@ -71,6 +96,26 @@ public class Grid extends InteractiveFrameElement {
 		else
 			graphics.stroke(getColor());
 
+		if (delegateRender)
+			drawOPENGLGrid();
+		else
+			drawGrid();
+
+		graphics.popStyle();
+		graphics.popMatrix();
+	}
+
+	private void drawOPENGLGrid() {
+		for (int i = 0; i < linesH.length; i++) {
+			fastVolumetric.drawLine(linesH[i]);
+		}
+
+		for (int i = 0; i < linesW.length; i++) {
+			fastVolumetric.drawLine(linesW[i]);
+		}
+	}
+
+	private void drawGrid() {
 		float halfH = size * h / 2;
 		float halfW = size * w / 2;
 		graphics.pushMatrix();
@@ -83,8 +128,6 @@ public class Grid extends InteractiveFrameElement {
 			}
 			graphics.translate(-size * h, 0, size);
 		}
-		graphics.popMatrix();
-		graphics.popStyle();
 		graphics.popMatrix();
 	}
 

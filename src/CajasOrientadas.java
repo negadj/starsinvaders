@@ -5,6 +5,7 @@ import processing.opengl.*;
 import remixlab.proscene.*;
 import spaceinvaders.Grid;
 import spaceinvaders.Invaders;
+import spaceinvaders.opengl.FastVolumetric;
 
 import java.applet.*;
 import java.awt.Dimension;
@@ -40,9 +41,10 @@ public class CajasOrientadas extends PApplet {
 	Box[] cajas;
 	Sphere esfera;
 	int radius = 100;
-	
+
 	Grid grid;
 	Invaders invaders;
+	FastVolumetric fastVolumetric;
 
 	public void setup() {
 		size(640, 360, OPENGL);
@@ -64,12 +66,12 @@ public class CajasOrientadas extends PApplet {
 		cajas = new Box[30];
 		for (int i = 0; i < cajas.length; i++)
 			cajas[i] = new Box();
-		
-		grid = new Grid(this, scene);
+
+		grid = new Grid(this, this.g, scene, 40);
+		fastVolumetric = new FastVolumetric(this, (PGraphicsOpenGL) this.g);
+		grid.createOpenGlRenderization(fastVolumetric);
 		grid.c = color(0, 255, 0);
-		
-		invaders = new Invaders(this, scene);
-		invaders.c = color(0, 255, 0);
+
 	}
 
 	public void draw() {
@@ -84,8 +86,11 @@ public class CajasOrientadas extends PApplet {
 			cajas[i].setOrientation(esfera.getPosition());
 			cajas[i].draw(true);
 		}
-		
-		invaders.draw();
+		fastVolumetric.beginDraw();
+		fastVolumetric.draw();
+		fastVolumetric.endDraw();
+
+		//invaders.draw();
 	}
 
 	public void keyPressed() {
