@@ -2,6 +2,9 @@ package spaceinvaders;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import processing.core.PVector;
+import spaceinvaders.opengl.FastVolumetric;
+import spaceinvaders.opengl.Line;
 
 public class Bullet {
 
@@ -9,8 +12,9 @@ public class Bullet {
 	float sx, sy;
 	PApplet pApplet;
 	PGraphics graphics;
+	FastVolumetric fastVolumetric;
 
-	Bullet(PApplet pApplet, PGraphics graphics, float x, float y, float s) {
+	public Bullet(PApplet pApplet, PGraphics graphics, float x, float y, float s) {
 
 		this.graphics = graphics;
 		this.x = x;
@@ -19,6 +23,10 @@ public class Bullet {
 		this.sy = y;
 		speed = s;
 		this.pApplet = pApplet;
+	}
+
+	public void createOpenGlRenderization(FastVolumetric fastVolumetric) {
+		this.fastVolumetric = fastVolumetric;
 	}
 
 	public void update() {
@@ -40,12 +48,23 @@ public class Bullet {
 	}
 
 	public void drawMe() {
-		graphics.pushStyle();
-		graphics.stroke(255);
-		graphics.strokeWeight(2);
-		graphics.line(x, 0, y - 5, x, 0, y + 5);
 
-		graphics.popStyle();
+		if (fastVolumetric != null) {
+			Line line = new Line(new PVector(x, 0, y - 20), new PVector(x, 0,
+					y + 20));
+			line.width = 50;
+			float[] c = { 1f, 0, 0 };
+			line.color = c;
+			fastVolumetric.drawLine(line);
+		} else {
+
+			graphics.pushStyle();
+			graphics.stroke(255);
+			graphics.strokeWeight(2);
+			graphics.line(x, 0, y - 5, x, 0, y + 5);
+			graphics.popStyle();
+		}
+
+		
 	}
-
 }

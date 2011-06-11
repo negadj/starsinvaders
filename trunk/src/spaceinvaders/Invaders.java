@@ -44,11 +44,15 @@ public class Invaders extends Grid {
 	// ------BALAS------------:
 	//
 	// Velocidad a la que van las balas
-	int bulletSpeed = 4;
+	int bulletSpeed = 14;
 	ArrayList<Bullet> bulletsList = new ArrayList<Bullet>();
 	ArrayList<Bullet> bulletsListInvaders = new ArrayList<Bullet>();
 
 	OscFacade oscFacade;
+
+	float invaderXTranslate = 500;
+	float invaderZTranslate = 500;
+	float invaderZOffset = 1000;
 
 	public Invaders(PApplet applet, PGraphics graphics, Scene scene,
 			int unitSize) {
@@ -71,14 +75,16 @@ public class Invaders extends Grid {
 		spaceShipSpeed = 5;
 		// INICIALIZACION (esto funciona para 50 invasores a 10x5)
 		int invaderCount = 0;
-		for (int i = 0; i < invaders.length; i += 1) {
-			invaders[invaderCount] = new Invader(applet, graphics, 0, 0,
-					invaderCount, invadersSpeed, invadersSpeedIncrement,
-					invadersYStep, unitSize);
-			invaderCount++;
+		for (int i = 0; i < 5; i += 1) {
+			for (int j = 0; j < 5; j += 1) {
+				invaders[invaderCount] = new Invader(applet, graphics, i, j,
+						invaderCount, invadersSpeed, invadersSpeedIncrement,
+						invadersYStep, unitSize);
+				invaderCount++;
+			}
 		}
 
-		nave = new SpaceShip(applet, graphics, 500, 400, spaceShipSpeed, 500);
+		nave = new SpaceShip(applet, graphics, 500, 0, spaceShipSpeed, 500);
 		nave.spaceShip = naveImage;
 
 		oscFacade = new OscFacade();
@@ -123,24 +129,54 @@ public class Invaders extends Grid {
 			for (int j = 0; j < numOfInvadersY; j++) {
 				// invaders[i].update();
 				renderer.pushMatrix();
-				renderer.translate(12 * 35 * i, j * 50, 12 * 30 * j);
+				renderer.translate(invaderXTranslate * i, j * 50,
+						invaderZTranslate * j + invaderZOffset);
 				renderer.rotateZ(applet.radians(90));
 				renderer.rotateY(applet.radians(150));
 				renderer.model(invaders[0].xcubes);
 				renderer.popMatrix();
 			}
 		}
-		
 
 		// DISPAROS DE LOS INVASORES
 		if (applet.frameCount % 50 == 0) {
 			int selected = (int) applet.random(invaders.length);
-			Bullet bullet = invaders[selected].shoot();
-			invaderShoot(bullet);
-			if (bullet != null)
+			Bullet bullet = invaders[selected].shoot(invaderXTranslate,
+					invaderZTranslate);
+
+			if (bullet != null) {
+				bullet.createOpenGlRenderization(fastVolumetric);
+				invaderShoot(bullet);
+
 				bulletsListInvaders.add(bullet);
+			}
 		}
 
+		nave.update();
+		nave.drawMe();
+
+		if (startShoot > 0) {
+			applet.pushStyle();
+			applet.strokeWeight(startShoot);
+			applet.line(nave.x, 0, 0, nave.x, 1000, 1000);
+			applet.popStyle();
+		}
+
+		gl.glDepthMask(true);
+
+		renderer.endGL();
+
+		graphics.popStyle();
+		graphics.popMatrix();
+	}
+
+	public void drawShoots() {
+
+		graphics.pushMatrix();
+		graphics.pushStyle();
+		// Multiply matrix to get in the frame coordinate system.
+		// scene.parent.applyMatrix(iFrame.matrix()) is handy but inefficient
+		iFrame.applyTransformation(); // optimum
 		// MANEJO DE LOS DISPAROS DE LA NAVE
 		// TODO optimizar y eliminar del array los muertos
 		if (bulletsList.size() > 0) {
@@ -164,21 +200,6 @@ public class Invaders extends Grid {
 				b.drawMe();
 			}
 		}
-
-		nave.update();
-		nave.drawMe();
-
-		if (startShoot > 0) {
-			applet.pushStyle();
-			applet.strokeWeight(startShoot);
-			applet.line(nave.x, 0, 0, nave.x, 1000, 1000);
-			applet.popStyle();
-		}
-		
-		gl.glDepthMask(true);
-
-		renderer.endGL();
-		
 		graphics.popStyle();
 		graphics.popMatrix();
 	}
@@ -203,8 +224,8 @@ public class Invaders extends Grid {
 	public void setPositionFire(PVector pVector) {
 
 		PVector positionForFire = iFrame.coordinatesOf(pVector);
-		nave.z = 0;
-		nave.y = 0;
+		nave.z = (int) positionForFire.z;
+		nave.y = (int) positionForFire.y;
 		nave.x = (int) positionForFire.x;
 
 	}
@@ -222,6 +243,7 @@ public class Invaders extends Grid {
 		Bullet bullet = nave.shoot();
 
 		if (bullet != null) {
+			bullet.createOpenGlRenderization(fastVolumetric);
 			myShoot(bullet);
 			bulletsList.add(bullet);
 		}

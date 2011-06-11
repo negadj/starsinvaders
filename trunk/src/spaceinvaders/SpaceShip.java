@@ -7,7 +7,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 class SpaceShip {
-	int x, y, z;
+	int x, y, z = 0;
 	int xStep, delayBetweenBullets;
 	int lastBulletTime = -10000;
 	PImage spaceShip;
@@ -16,13 +16,13 @@ class SpaceShip {
 	// Tiempo (en milisegundos) que ha de pasar desde que se dispar\u00f3 una
 	// bala
 	// hasta que se puede disparar otra
-	private float bulletSpeed = 5;
+	private float bulletSpeed = 45;
 
-	public SpaceShip(PApplet pApplet, PGraphics graphics, int _x, int _y,
+	public SpaceShip(PApplet pApplet, PGraphics graphics, int _x, int _z,
 			int _s, int _d) {
 		this.graphics = graphics;
 		x = _x;
-		y = _y;
+		z = _z;
 		xStep = _s;
 		delayBetweenBullets = _d;
 		this.pApplet = pApplet;
@@ -35,7 +35,7 @@ class SpaceShip {
 
 	public void drawMe() {
 		// println("_____________"+x+"oo"+y);
-		graphics.image(spaceShip, x, y);
+		// graphics.image(spaceShip, x, y);
 	}
 
 	public void incrementX() {
@@ -53,7 +53,7 @@ class SpaceShip {
 	public Bullet shoot() {
 		Bullet bullet = null;
 		if (pApplet.millis() - lastBulletTime > delayBetweenBullets) {
-			bullet = new Bullet(pApplet, graphics, x, y, bulletSpeed);
+			bullet = new Bullet(pApplet, graphics, x, z, bulletSpeed);
 			lastBulletTime = pApplet.millis();
 		}
 		return bullet;

@@ -8,6 +8,7 @@ import remixlab.proscene.*;
 import remixlab.proscene.Scene.Button;
 import spaceinvaders.actions.AddRemoveBox;
 import spaceinvaders.gui.Button2D;
+import spaceinvaders.opengl.FastVolumetric;
 
 import java.applet.*;
 import java.awt.Dimension;
@@ -68,6 +69,8 @@ public class MouseGrabbers extends PApplet {
 	int userCalibrated = 0;
 	boolean tracking = false;
 
+	FastVolumetric fastVolumetric;
+
 	public void setup() {
 		size(1024, 768, GLConstants.GLGRAPHICS);
 		hint(ENABLE_OPENGL_4X_SMOOTH);
@@ -83,6 +86,8 @@ public class MouseGrabbers extends PApplet {
 		// Anything is drawn on this canvas will be seen in the output window.
 
 		scene = new Scene(this, glg1);
+
+		fastVolumetric = new FastVolumetric(this, glg1);
 
 		DesktopEvents desktopEvents = new DesktopEvents(scene);
 		registerMouseEvent(desktopEvents);
@@ -106,9 +111,13 @@ public class MouseGrabbers extends PApplet {
 
 		gridFloor = new Grid(this, glg1, scene, 20);
 		gridFloor.c = color(0, 255, 0);
+		gridFloor.createOpenGlRenderization(fastVolumetric);
 
 		invaders = new Invaders(this, glg1, scene, 10);
 		invaders.c = color(0, 255, 0);
+		invaders.h = 4;
+		invaders.w = 4;
+		invaders.fastVolumetric = fastVolumetric;
 
 		kinect = new SimpleOpenNI_User3d();
 		kinect.setup(this, glg1);
@@ -116,24 +125,15 @@ public class MouseGrabbers extends PApplet {
 		println(kinect.context.isInit());
 
 		frameRate(60);
+
 	}
 
 	public void draw() {
-		// Proscene sets the background to black by default. If you need to
-		// change
-		// it, don't call background() directly but use scene.background()
-		// instead.
-		// lights();
-		// ambientLight(255,255,255);
-		// specular(155);
-		// for (int i = 0; i < buttons.length; i++) {
-		// buttons[i][0].display();
-		// buttons[i][1].display();
-		// }
-		//
+
 		background(0);
 		glg1.beginDraw();
 		scene.beginDraw();
+
 		kinect.draw();
 
 		for (int i = 0; i < boxes.size(); i++) {
@@ -141,8 +141,12 @@ public class MouseGrabbers extends PApplet {
 			box.draw(true);
 		}
 
-		gridFloor.draw();
 		invaders.draw();
+		fastVolumetric.beginDraw();
+		gridFloor.draw();
+		// fastVolumetric.draw();
+		invaders.drawShoots();
+		fastVolumetric.endDraw();
 
 		text(frameRate, 50, 30);
 
@@ -193,6 +197,12 @@ public class MouseGrabbers extends PApplet {
 		case 'a':
 			gridFloor.w--;
 			break;
+		case '+':
+			scene.camera().setFieldOfView(scene.camera().fieldOfView() + 0.05f);
+			break;
+		case '-':
+			scene.camera().setFieldOfView(scene.camera().fieldOfView() - 0.05f);
+			break;
 		case '=':
 			// enter/leave calibration mode, where surfaces can be warped
 			// & moved
@@ -240,9 +250,9 @@ public class MouseGrabbers extends PApplet {
 		if (key == CODED) {
 			// y si lo es, si es la flecha izquierda o derecha
 			if (keyCode == LEFT) {
-				invaders.nave.incrementX();
-			} else if (keyCode == RIGHT) {
 				invaders.nave.decrementX();
+			} else if (keyCode == RIGHT) {
+				invaders.nave.incrementX();
 			}
 		} else {
 			// si le damos a la tecla espacio

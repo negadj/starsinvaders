@@ -23,7 +23,7 @@ public class Invader {
 	PImage invadersFrameOne, invadersFrameTwo;
 
 	int lastBulletTime = -10000;
-	private float bulletSpeed = -5;
+	private float bulletSpeed = -45;
 
 	// The indices that connect the 8 vertices
 	// in a single cube, in the form of 12 triangles.
@@ -151,11 +151,12 @@ public class Invader {
 		return false;
 	}
 
-	public Bullet shoot() {
+	public Bullet shoot(float invaderXTranslate, float invaderZTranslate) {
 		Bullet bullet = null;
 		if (alive)
 			if (pApplet.millis() - lastBulletTime > delayBetweenBullets) {
-				bullet = new Bullet(pApplet, graphics, x, y, bulletSpeed);
+				bullet = new Bullet(pApplet, graphics, x * invaderXTranslate, y
+						* invaderZTranslate, bulletSpeed);
 				lastBulletTime = pApplet.millis();
 			}
 		return bullet;

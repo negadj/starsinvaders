@@ -12,6 +12,6 @@ public class OffScreenScene extends Scene {
 
 	
 	public void setMouseTracking(boolean enable) {
-		mouseTrckn = enable;
+//		mouseTrckn = enable;
 	}
 }
