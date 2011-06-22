@@ -71,6 +71,8 @@ public class MouseGrabbers extends PApplet {
 
 	FastVolumetric fastVolumetric;
 
+	boolean kinectMode = true;
+
 	public void setup() {
 		size(1024, 768, GLConstants.GLGRAPHICS);
 		hint(ENABLE_OPENGL_4X_SMOOTH);
@@ -119,10 +121,14 @@ public class MouseGrabbers extends PApplet {
 		invaders.w = 4;
 		invaders.fastVolumetric = fastVolumetric;
 
-		kinect = new SimpleOpenNI_User3d();
-		kinect.setup(this, glg1);
+		if (kinectMode) {
+			kinect = new SimpleOpenNI_User3d();
+			kinect.setup(this, glg1);
 
-		println(kinect.context.isInit());
+			println(kinect.context.isInit());
+		} else {
+			println("NoKinectMode");
+		}
 
 		frameRate(60);
 
@@ -134,7 +140,8 @@ public class MouseGrabbers extends PApplet {
 		glg1.beginDraw();
 		scene.beginDraw();
 
-		kinect.draw();
+		if (kinectMode)
+			kinect.draw();
 
 		for (int i = 0; i < boxes.size(); i++) {
 			Box box = (Box) boxes.get(i);
@@ -150,7 +157,11 @@ public class MouseGrabbers extends PApplet {
 
 		text(frameRate, 50, 30);
 
-		checkUserAndApplyHeadTrackingCamera();
+		if (kinectMode)
+			checkUserAndApplyHeadTrackingCamera();
+		else
+			moveShip();
+
 		scene.endDraw();
 		glg1.endDraw();
 
@@ -159,6 +170,13 @@ public class MouseGrabbers extends PApplet {
 		text(frameRate, 10, 10);
 		text("userCalibrated:" + userCalibrated + " tracking:" + tracking, 10,
 				20);
+
+	}
+
+	private void moveShip() {
+
+		PVector vector = scene.camera().position();
+		invaders.setPositionFire(vector);
 
 	}
 
@@ -260,7 +278,8 @@ public class MouseGrabbers extends PApplet {
 				invaders.shoot();
 			}
 		}
-		kinect.keyPressed();
+		if (kinectMode)
+			kinect.keyPressed();
 
 	}
 
@@ -346,7 +365,10 @@ public class MouseGrabbers extends PApplet {
 	}
 
 	static public void main(String args[]) {
-		PApplet.main(new String[] { "--bgcolor=#F0F0F0",
-				"spaceinvaders.MouseGrabbers" });
+		// PApplet.main(new String[] { "--bgcolor=#F0F0F0",
+		// "spaceinvaders.MouseGrabbers" });
+		MouseGrabbers grabbers = new MouseGrabbers();
+		grabbers.kinectMode = false;
+		grabbers.runSketch(new String[] { "--bgcolor=#F0F0F0" });
 	}
 }
