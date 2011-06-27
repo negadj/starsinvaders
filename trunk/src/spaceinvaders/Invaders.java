@@ -13,6 +13,7 @@ import processing.core.PImage;
 import processing.core.PVector;
 import remixlab.proscene.Scene;
 import spaceinvaders.com.OscFacade;
+import toxi.geom.Vec3D;
 
 public class Invaders extends Grid {
 
@@ -54,6 +55,9 @@ public class Invaders extends Grid {
 	float invaderZTranslate = 500;
 	float invaderZOffset = 1000;
 
+	// PROTECTORES
+	Toxiclibs toxiclibs = null;
+
 	public Invaders(PApplet applet, PGraphics graphics, Scene scene,
 			int unitSize) {
 		super(applet, graphics, scene, unitSize);
@@ -89,6 +93,11 @@ public class Invaders extends Grid {
 
 		oscFacade = new OscFacade();
 		oscFacade.setup(applet, "127.0.0.1", 12000);
+
+		toxiclibs = new Toxiclibs(applet);
+		for (int i = 0; i < 5; i++) {
+			toxiclibs.createCylinder(new Vec3D(0, i * 250, 0), 100, 50);
+		}
 	}
 
 	@Override
@@ -121,6 +130,12 @@ public class Invaders extends Grid {
 		gl.glEnable(GL.GL_BLEND);
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
 
+		renderer.pushMatrix();
+		renderer.rotateY(applet.radians(90));
+		renderer.rotateX(applet.radians(90));
+		toxiclibs.draw(renderer);
+		renderer.popMatrix();
+		
 		// Disabling depth masking to properly render a semitransparent
 		// object without using depth sorting.
 		gl.glDepthMask(false);
@@ -224,6 +239,13 @@ public class Invaders extends Grid {
 	public void setPositionFire(PVector pVector) {
 
 		PVector positionForFire = iFrame.coordinatesOf(pVector);
+
+		if (nave.y - (int) positionForFire.y > 3) {
+			oscFacade.updateShipPosition((int) positionForFire.x,
+					(int) positionForFire.y);
+			System.out.println("update position SHIPPPPPP");
+		}
+
 		nave.z = (int) positionForFire.z;
 		nave.y = (int) positionForFire.y;
 		nave.x = (int) positionForFire.x;

@@ -34,4 +34,16 @@ public class OscFacade {
 
 		oscP5.send(myMessage, remoteLocation);
 	}
+	
+	public void updateShipPosition(int x, int y) {
+
+		OscMessage myMessage = new OscMessage("/yourPosition");
+
+		myMessage.add(x); /* add an int to the osc message */
+		myMessage.add(y); /* add an int to the osc message */
+
+		oscP5.send(myMessage, remoteLocation);
+	}
+
+	
 }
