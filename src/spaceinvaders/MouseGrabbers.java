@@ -9,6 +9,7 @@ import remixlab.proscene.Scene.Button;
 import spaceinvaders.actions.AddRemoveBox;
 import spaceinvaders.gui.Button2D;
 import spaceinvaders.opengl.FastVolumetric;
+import toxi.geom.Vec3D;
 
 import java.applet.*;
 import java.awt.Dimension;
@@ -63,6 +64,7 @@ public class MouseGrabbers extends PApplet {
 
 	int radius = 100;
 	GLGraphicsOffScreen glg1;
+	GLGraphicsOffScreen glg2, glg3;
 
 	Keystone ks;
 	CornerPinSurface surface;
@@ -73,6 +75,9 @@ public class MouseGrabbers extends PApplet {
 
 	boolean kinectMode = true;
 
+	PImage probando = null;
+	int colorEmpty = 0;
+
 	public void setup() {
 		size(1024, 768, GLConstants.GLGRAPHICS);
 		hint(ENABLE_OPENGL_4X_SMOOTH);
@@ -80,6 +85,11 @@ public class MouseGrabbers extends PApplet {
 		hint(ENABLE_NATIVE_FONTS);
 
 		glg1 = new GLGraphicsOffScreen(this, width, height, true, 4);
+		glg2 = new GLGraphicsOffScreen(this, width, height);
+		glg3 = new GLGraphicsOffScreen(this, width, height);
+
+		glg2.imageMode(CENTER);
+		colorEmpty = glg2.get(100, 100);
 
 		ks = new Keystone(this);
 		surface = ks.createCornerPinSurface(width, height, 20);
@@ -105,7 +115,7 @@ public class MouseGrabbers extends PApplet {
 		scene.camera().setPosition(new PVector(0, 0, -1500));
 		scene.camera().lookAt(new PVector(0, 0, 3000));
 
-		scene.camera().orientation().rotate(new PVector(0, 0, 1));
+		// scene.camera().orientation().rotate(new PVector(-1, 0, 0));
 
 		myColor = 125;
 		boxes = new ArrayList();
@@ -132,6 +142,9 @@ public class MouseGrabbers extends PApplet {
 
 		frameRate(60);
 
+		probando = loadImage("calibration-pose.png");
+
+
 	}
 
 	public void draw() {
@@ -155,12 +168,18 @@ public class MouseGrabbers extends PApplet {
 		invaders.drawShoots();
 		fastVolumetric.endDraw();
 
-		text(frameRate, 50, 30);
+		glg1.pushMatrix();
+		glg1.rotateY(radians(90));
+		glg1.popMatrix();
+
+		glg1.text(frameRate, 50, 30);
 
 		if (kinectMode)
 			checkUserAndApplyHeadTrackingCamera();
 		else
 			moveShip();
+
+		PVector vector = scene.camera().position();
 
 		scene.endDraw();
 		glg1.endDraw();
@@ -170,6 +189,22 @@ public class MouseGrabbers extends PApplet {
 		text(frameRate, 10, 10);
 		text("userCalibrated:" + userCalibrated + " tracking:" + tracking, 10,
 				20);
+
+		// glg2.beginDraw();
+		// //glg2.background(mouseX,mouseY);
+		// glg2.textSize(50);
+		// glg2.text("START POSE DETECTION",220,100);
+		// glg2.image(probando, width/2, height/2);
+		// glg2.endDraw();
+		//
+		// glg3.beginDraw();
+		// //glg2.background(mouseX,mouseY);
+		// glg3.textSize(75);
+		// glg3.text("LOOKING FOR PLAYER!!",100,350);
+		// glg3.endDraw();
+		//
+		// tint(255,180);
+		// image(glg3.getTexture(), 0,0);
 
 	}
 
