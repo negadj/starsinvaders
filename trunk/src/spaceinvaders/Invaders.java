@@ -22,7 +22,8 @@ public class Invaders extends Grid {
 
 	int numOfInvadersX = 5;
 	int numOfInvadersY = 5;
-	Invader[] invaders = new Invader[numOfInvadersX * numOfInvadersY];
+	int numProtections = 4;
+	Invader[] invaders = null;
 
 	// ------INVASORES------------:
 	//
@@ -55,12 +56,26 @@ public class Invaders extends Grid {
 	float invaderZTranslate = 500;
 	float invaderZOffset = 1000;
 
+	float protectionXTranslate = 500;
+	float protectionZTranslate = 500;
+	float protectionZOffset = 1000;
+
 	// PROTECTORES
 	Toxiclibs toxiclibs = null;
 
+	float invadersXPosition = 0;
+	float invadersYPosition = 0;
+	float angle = 0;
+	int invadersMaxMovement = 300;
+	float invadersVelocity = 0.02f;
+	float invadersVelocityInc = 0.01f;
+
 	public Invaders(PApplet applet, PGraphics graphics, Scene scene,
 			int unitSize) {
+
 		super(applet, graphics, scene, unitSize);
+
+		invaders = new Invader[numOfInvadersX * numOfInvadersY];
 
 		invadersFrameOne = applet.loadImage("bitxo1.gif");
 		invadersFrameOne.resize(invadersFrameOne.width * unitSize,
@@ -95,8 +110,8 @@ public class Invaders extends Grid {
 		oscFacade.setup(applet, "127.0.0.1", 12000);
 
 		toxiclibs = new Toxiclibs(applet);
-		for (int i = 0; i < 5; i++) {
-			toxiclibs.createCylinder(new Vec3D(0, i * 250, 0), 100, 50);
+		for (int i = 0; i < numProtections; i++) {
+			toxiclibs.createCylinder(new Vec3D(0, 0, 0), 100, 50);
 		}
 	}
 
@@ -130,15 +145,42 @@ public class Invaders extends Grid {
 		gl.glEnable(GL.GL_BLEND);
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
 
-		renderer.pushMatrix();
-		renderer.rotateY(applet.radians(90));
-		renderer.rotateX(applet.radians(90));
-		toxiclibs.draw(renderer);
-		renderer.popMatrix();
-		
+		for (int i = 0; i < toxiclibs.surfs.size(); i++) {
+			renderer.pushMatrix();
+			renderer.translate(protectionXTranslate * i, 0, 0);
+			renderer.rotateX(applet.radians(90));
+			renderer.rotateY(applet.radians(90));
+			renderer.rotateZ(applet.radians(90));
+			renderer.model(toxiclibs.surfs.get(i));
+			renderer.popMatrix();
+		}
+
 		// Disabling depth masking to properly render a semitransparent
 		// object without using depth sorting.
 		gl.glDepthMask(false);
+
+		if (applet.frameCount % 2 == 0) {
+			angle += invadersVelocity;
+			if (angle > PApplet.TWO_PI) {
+
+				angle = 0;
+			}
+		}
+
+//		if (applet.frameCount % 50 == 0) {
+//			invadersVelocity += invadersVelocityInc;
+//
+//			if (invadersVelocity > 0.4) {
+//				invadersVelocity = 0.4f;
+//			}
+//
+//			invadersYPosition -= invadersVelocity / 10f;
+//		}
+
+		invadersXPosition = invadersMaxMovement * applet.sin(angle);
+
+		renderer.pushMatrix();
+		renderer.translate(invadersXPosition, 0, invadersYPosition);
 
 		for (int i = 0; i < numOfInvadersX; i++) {
 			for (int j = 0; j < numOfInvadersY; j++) {
@@ -153,9 +195,12 @@ public class Invaders extends Grid {
 			}
 		}
 
+		renderer.popMatrix();
+
 		// DISPAROS DE LOS INVASORES
 		if (applet.frameCount % 50 == 0) {
 			int selected = (int) applet.random(invaders.length);
+
 			Bullet bullet = invaders[selected].shoot(invaderXTranslate,
 					invaderZTranslate);
 
