@@ -30,7 +30,7 @@ public class Toxiclibs {
 	TriangleMesh mesh = new WETriangleMesh();
 
 	// used to store mesh on GPU
-	GLModel surf;
+	public ArrayList<GLModel> surfs = new ArrayList<GLModel>();
 
 	Scene scene;
 
@@ -43,6 +43,8 @@ public class Toxiclibs {
 
 	public void createCylinder(ReadonlyVec3D pos, float radius, float length) {
 
+		mesh = new WETriangleMesh();
+		
 		// mesh.addMesh(new Plane(new Vec3D(), new Vec3D(0, 1, 0)).toMesh(400));
 		// mesh.addMesh(new AABB(new Vec3D(0, 0, 0), 200).toMesh());
 		mesh.addMesh(new XAxisCylinder(pos, radius, length).toMesh());
@@ -55,7 +57,7 @@ public class Toxiclibs {
 		int numV = verts.length / 4;
 		float[] norms = mesh.getVertexNormalsAsArray();
 
-		surf = new GLModel(applet, numV, PApplet.TRIANGLES, GLModel.STATIC);
+		GLModel surf = new GLModel(applet, numV, PApplet.TRIANGLES, GLModel.STATIC);
 		surf.beginUpdateVertices();
 		for (int i = 0; i < numV; i++)
 			surf.updateVertex(i, verts[4 * i], verts[4 * i + 1],
@@ -79,6 +81,8 @@ public class Toxiclibs {
 
 		// Setting model shininess.
 		surf.setShininess(32);
+		
+		surfs.add(surf);
 	}
 
 	public void draw(GLGraphicsOffScreen renderer) {
@@ -87,7 +91,7 @@ public class Toxiclibs {
 		// rotateX(mouseY * 0.01f);
 		// rotateY(mouseX * 0.01f);
 		// scale(currScale);
-		applet.lights();
+		//applet.lights();
 
 //		renderer.beginGL();
 //
@@ -119,7 +123,6 @@ public class Toxiclibs {
 //		renderer.gl.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, new float[] { 1, 1,
 //				1, 1 }, 0);
 //
-		renderer.model(surf);
 //
 //		defineLights();
 //

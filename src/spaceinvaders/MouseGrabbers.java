@@ -403,7 +403,7 @@ public class MouseGrabbers extends PApplet {
 		// PApplet.main(new String[] { "--bgcolor=#F0F0F0",
 		// "spaceinvaders.MouseGrabbers" });
 		MouseGrabbers grabbers = new MouseGrabbers();
-		grabbers.kinectMode = false;
+		grabbers.kinectMode = true;
 		grabbers.runSketch(new String[] { "--bgcolor=#F0F0F0" });
 	}
 }
