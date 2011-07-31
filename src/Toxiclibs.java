@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.zip.*;
 import java.util.regex.*;
 
-public class Toxiclibs extends PApplet {
+public class Toxiclibs {
 
 	// Integration between GLGraphics and Toxiclibs.
 	//
@@ -61,35 +61,25 @@ public class Toxiclibs extends PApplet {
 
 	float currScale = 1;
 
-	TriangleMesh mesh;
+	TriangleMesh mesh = new WETriangleMesh();
 
 	// used to store mesh on GPU
 	GLModel surf;
 
 	Scene scene;
 
-	public void setup() {
-		size(1024, 768, GLConstants.GLGRAPHICS);
-		VolumetricSpace volume = new VolumetricSpaceArray(SCALE, DIMX, DIMY,
-				DIMZ);
-		// fill volume with noise
-		for (int z = 0; z < DIMZ; z++) {
-			for (int y = 0; y < DIMY; y++) {
-				for (int x = 0; x < DIMX; x++) {
-					volume.setVoxelAt(
-							x,
-							y,
-							z,
-							(float) SimplexNoise.noise(x * NS, y * NS, z * NS) * 0.5f);
-				}
-			}
-		}
-		volume.closeSides();
-		// store in IsoSurface and compute surface mesh for the given threshold
-		// value
-		mesh = new TriangleMesh("iso");
-		IsoSurface surface = new HashIsoSurface(volume, 0.333333f);
-		surface.computeSurfaceMesh(mesh, ISO_THRESHOLD);
+	PApplet applet;
+
+	public void setup(PApplet applet) {
+
+		this.applet = applet;
+	}
+
+	public void createCylinder(ReadonlyVec3D pos, float radius, float length) {
+
+		// mesh.addMesh(new Plane(new Vec3D(), new Vec3D(0, 1, 0)).toMesh(400));
+		// mesh.addMesh(new AABB(new Vec3D(0, 0, 0), 200).toMesh());
+		mesh.addMesh(new XAxisCylinder(pos, radius, length).toMesh());
 
 		// update lighting information
 		mesh.computeVertexNormals();
@@ -99,7 +89,7 @@ public class Toxiclibs extends PApplet {
 		int numV = verts.length / 4;
 		float[] norms = mesh.getVertexNormalsAsArray();
 
-		surf = new GLModel(this, numV, TRIANGLES, GLModel.STATIC);
+		surf = new GLModel(applet, numV, PApplet.TRIANGLES, GLModel.STATIC);
 		surf.beginUpdateVertices();
 		for (int i = 0; i < numV; i++)
 			surf.updateVertex(i, verts[4 * i], verts[4 * i + 1],
@@ -123,9 +113,6 @@ public class Toxiclibs extends PApplet {
 
 		// Setting model shininess.
 		surf.setShininess(32);
-
-		scene = new Scene(this);
-		scene.showAll();
 	}
 
 	public void draw() {
@@ -134,10 +121,10 @@ public class Toxiclibs extends PApplet {
 		// rotateX(mouseY * 0.01f);
 		// rotateY(mouseX * 0.01f);
 		// scale(currScale);
-		lights();
+		applet.lights();
 
 		// need to switch to pure OpenGL mode first
-		GLGraphics renderer = (GLGraphics) g;
+		GLGraphics renderer = (GLGraphics) applet.g;
 		renderer.beginGL();
 
 		renderer.gl.glEnable(GL.GL_LIGHTING);
@@ -169,7 +156,7 @@ public class Toxiclibs extends PApplet {
 				1, 1 }, 0);
 
 		renderer.model(surf);
-		
+
 		defineLights();
 
 		// back to processing
@@ -178,32 +165,18 @@ public class Toxiclibs extends PApplet {
 
 	void defineLights() {
 		// Orange point light on the right
-		pointLight(150, 100, 0, // Color
+		applet.pointLight(150, 100, 0, // Color
 				200, -150, 0); // Position
 
 		// Blue directional light from the left
-		directionalLight(0, 102, 255, // Color
+		applet.directionalLight(0, 102, 255, // Color
 				1, 0, 0); // The x-, y-, z-axis direction
 
 		// Yellow spotlight from the front
-		spotLight(255f, 255f, 109f, // Color
+		applet.spotLight(255f, 255f, 109f, // Color
 				0f, 40f, 200f, // Position
 				0f, -0.5f, -0.5f, // Direction
-				PI / 2f, 2f); // Angle, concentration
+				PApplet.PI / 2f, 2f); // Angle, concentration
 	}
 
-	public void keyPressed() {
-		if (key == '-')
-			currScale = max(currScale - 0.1f, 0.5f);
-		if (key == '=')
-			currScale = min(currScale + 0.1f, 10);
-		if (key == 's') {
-			// save mesh as STL or OBJ file
-			mesh.saveAsSTL(sketchPath("noise.stl"));
-		}
-	}
-
-	static public void main(String args[]) {
-		PApplet.main(new String[] { "--bgcolor=#F0F0F0", "Toxiclibs" });
-	}
 }

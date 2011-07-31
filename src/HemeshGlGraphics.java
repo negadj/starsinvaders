@@ -144,7 +144,7 @@ public class HemeshGlGraphics extends PApplet {
 
 		HE_Vertex[] he_Vertexs = cells[0].verticesAsArray();
 		int numV = he_Vertexs.length;
-		surf = new GLModel(this, numV, TRIANGLES, GLModel.STATIC);
+		surf = new GLModel(this, numV, QUADS, GLModel.STATIC);
 		surf.beginUpdateVertices();
 		for (int i = 0; i < numV; i++) {
 			HE_Vertex vertex = he_Vertexs[i];

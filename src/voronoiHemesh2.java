@@ -39,10 +39,14 @@ public class voronoiHemesh2 extends PApplet {
 
 	public void setup() {
 		size(800, 800, OPENGL);
+		hint(ENABLE_OPENGL_4X_SMOOTH);
+		hint(ENABLE_ACCURATE_TEXTURES);
+		hint(ENABLE_NATIVE_FONTS);
 		// create a sphere
 
-//		 scene = new Scene(this);
-//		 scene.showAll();
+		 scene = new Scene(this);
+		 scene.setRadius(3000);
+		 scene.showAll();
 		HEC_Cube geo = new HEC_Cube(this);
 		geo.setEdge(300);// .setLevel(2);
 		container = new HE_Mesh(geo);
@@ -72,12 +76,12 @@ public class voronoiHemesh2 extends PApplet {
 	}
 
 	public void draw() {
-		background(255);
+		background(0);
 		text(frameRate, 10, 10);
 		lights();
-		translate(width / 2, height / 2, 0);
-		rotateX(1f / height * mouseY * TWO_PI - PI);
-		rotateY(1f / width * mouseX * TWO_PI - PI);
+//		translate(width / 2, height / 2, 0);
+//		rotateX(1f / height * mouseY * TWO_PI - PI);
+//		rotateY(1f / width * mouseX * TWO_PI - PI);
 		drawFaces();
 		//drawEdges();
 
